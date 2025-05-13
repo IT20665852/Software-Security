@@ -1,130 +1,81 @@
-<!-- Include Head -->
-<?php include "assest/head.php"; ?>
 <?php
+session_start();
 
-$catID = "";
-
-// Get All Categories
-$stmt = $conn->prepare("SELECT * FROM `category` ");
-$stmt->execute();
-$categories = $stmt->fetchAll();
-
-if (isset($_GET["catID"])) {
-
-    $catID = $_GET["catID"];
-
-    // Get Category Info
-    $stmt = $conn->prepare("SELECT * FROM `category` WHERE category_id = ?");
-    $stmt->execute([$catID]);
-    $category = $stmt->fetch();
-
-    // Get Latest articles
-    $stmt = $conn->prepare("SELECT * FROM `article` INNER JOIN category ON id_categorie=category_id WHERE id_categorie = ?  ORDER BY `article_created_time` DESC ");
-    $stmt->execute([$catID]);
-    $articles = $stmt->fetchAll();
-} else {
-
-    $stmt = $conn->prepare("SELECT * FROM `article` INNER JOIN category ON id_categorie=category_id ORDER BY `article_created_time` DESC ");
-    $stmt->execute();
-    $articles = $stmt->fetchAll();
+// CSRF token generation
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-
-
 ?>
 
-<!-- Google Fonts -->
-<!-- <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet"> -->
-<link href="https://fonts.googleapis.com/css?family=Nunito+Sans:700%7CNunito:300,600" rel="stylesheet">
-
-<!-- Custom CSS -->
-<!-- <link href="css/home.css" rel="stylesheet"> -->
-<link href="css/style.css" type="text/css" rel="stylesheet" />
-
-<title>Articles</title>
+<?php include "assets/head.php"; ?>
+<title>Add Author</title>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body>
 
-    <!-- Header -->
-    <?php include "assest/header.php" ?>
-    <!-- </Header> -->
+<?php include "assets/header.php"; ?>
 
-    <!-- Main -->
-    <main class="main">
+<main role="main" class="main">
+    <div class="jumbotron text-center">
+        <h1 class="display-3 font-weight-normal text-muted">Add Author</h1>
+    </div>
 
-        <!-- Latest Articles -->
-        <div class="section jumbotron mb-0 h-100">
-            <!-- container -->
-            <div class="container">
+    <div class="container">
+        <div class="row">
 
-                <!-- row -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="section-title">
-                            <h2><?= $catID == "" ? "" : $category['category_name'] ?> Articles</h2>
+            <div class="col-lg-12 mb-4">
+                <form action="assets/insert.php?type=author" method="POST" enctype="multipart/form-data">
 
-                            <ul class="list-inline mt-1 mb-4">
-                                <li class="list-inline-item">
-                                    <a href="articleOfCategory.php" class="text-muted">
-                                        All
-                                    </a>
-                                </li>
+                    <!-- CSRF token for protection -->
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-                                <?php foreach ($categories as $category) : ?>
-                                    <li class="list-inline-item">
-                                        <a href="articleOfCategory.php?catID=<?= $category['category_id'] ?>" class="text-muted">
-                                            <?= $category['category_name'] ?>
-                                        </a>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
+                    <div class="form-group">
+                        <label for="authName">Full Name</label>
+                        <input type="text" class="form-control" name="authName" id="authName" required maxlength="50">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authDesc">Description</label>
+                        <input type="text" class="form-control" name="authDesc" id="authDesc" required maxlength="150">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authEmail">Email</label>
+                        <input type="email" class="form-control" name="authEmail" id="authEmail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authImage">Avatar</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" name="authImage" id="authImage" accept="image/jpeg, image/png">
+                            <label class="custom-file-label" for="authImage">Choose file</label>
                         </div>
                     </div>
 
-                    <?php foreach ($articles as $article) : ?>
-                        <!-- post -->
-                        <div class="col-md-4">
-                            <div class="post">
-                                <a class="post-img" href="single_article.php?id=<?= $article['article_id'] ?>">
-                                    <img src="img/article/<?= $article['article_image'] ?>" alt="">
-                                </a>
-                                <di class="post-body">
+                    <div class="form-group">
+                        <label for="authTwitter">Twitter Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authTwitter" id="authTwitter" placeholder="Ex: username" maxlength="15" pattern="^[A-Za-z0-9_]{1,15}$">
+                    </div>
 
-                                    <div class="post-meta">
-                                        <a class="post-category cat-1" href="articleOfCategory.php?catID=<?= $article['category_id'] ?>" style="background-color:<?= $article['category_color'] ?>"><?= $article['category_name'] ?></a>
-                                        <span class="post-date">
-                                            <?= date_format(date_create($article['article_created_time']), "F d, Y ") ?>
-                                        </span>
-                                    </div>
+                    <div class="form-group">
+                        <label for="authGithub">Github Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authGithub" id="authGithub" placeholder="Ex: username" maxlength="39" pattern="^[A-Za-z0-9-]{1,39}$">
+                    </div>
 
-                                    <h3 class="post-title"><a href="single_article.php?id=<?= $article['article_id'] ?>"><?= $article['article_title'] ?></a></h3>
+                    <div class="form-group">
+                        <label for="authLinkedin">Linkedin Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authLinkedin" id="authLinkedin" placeholder="Ex: username" maxlength="30" pattern="^[A-Za-z0-9-]{1,30}$">
+                    </div>
 
-                                </di>
-                            </div>
-                        </div>
-                        <!-- /post -->
-
-                    <?php endforeach;  ?>
-
-                    <div class="clearfix visible-md visible-lg"></div>
-                </div>
-                <!-- /row -->
-
+                    <div class="text-center">
+                        <button type="submit" name="submit" class="btn btn-success btn-lg w-25">Submit</button>
+                    </div>
+                </form>
             </div>
-            <!-- /container -->
+
         </div>
+    </div>
+</main>
 
-
-    </main><!-- </Main> -->
-
-    <!-- Footer -->
-    <?php include "assest/footer.php" ?>
-    <!-- </Footer> -->
-
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 </body>
-
 </html>

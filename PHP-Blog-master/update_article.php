@@ -1,156 +1,81 @@
-<!-- Include Head -->
-<?php include "assest/head.php"; ?>
 <?php
+session_start();
 
-// Input validation for article ID
-$article_id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
-if ($article_id === false || $article_id === null) {
-    die("Invalid article ID");
+// CSRF token generation
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-
-// Get article Data to display
-$stmt = $conn->prepare("SELECT * FROM article WHERE article_id = ?");
-$stmt->execute([$article_id]);
-$article = $stmt->fetch();
-
-// Get categories Data to display
-$stmt = $conn->prepare("SELECT category_id, category_name FROM category");
-$stmt->execute();
-$categories = $stmt->fetchAll();
-
-// Get authors Data to display
-$stmt = $conn->prepare("SELECT author_id, author_fullname FROM author");
-$stmt->execute();
-$authors = $stmt->fetchAll();
-
 ?>
 
-<!-- JS TextEditor -->
-<script src="//cdn.ckeditor.com/4.13.1/standard/ckeditor.js"></script>
-
-<title>Update Article</title>
+<?php include "assets/head.php"; ?>
+<title>Add Author</title>
 </head>
 
 <body>
 
-    <!-- Header -->
-    <?php include "assest/header.php" ?>
+<?php include "assets/header.php"; ?>
 
+<main role="main" class="main">
+    <div class="jumbotron text-center">
+        <h1 class="display-3 font-weight-normal text-muted">Add Author</h1>
+    </div>
 
-    <!-- Main -->
-    <main role="main" class="main">
+    <div class="container">
+        <div class="row">
 
-        <div class="jumbotron text-center">
-            <h1 class="display-3 font-weight-normal text-muted">Update Article</h1>
-        </div>
+            <div class="col-lg-12 mb-4">
+                <form action="assets/insert.php?type=author" method="POST" enctype="multipart/form-data">
 
-        <div class="container">
-            <div class="row">
+                    <!-- CSRF token for protection -->
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-                <div class="col-lg-8 mb-4">
-                    <!-- Form -->
-                    <form action="assest/update.php?type=article&id=<?= $article_id ?>&img=<?= htmlspecialchars($article["article_image"]) ?>" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="authName">Full Name</label>
+                        <input type="text" class="form-control" name="authName" id="authName" required maxlength="50">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="arTitle">Title</label>
-                            <!-- FIX 2: Escaping article title to prevent XSS -->
-                            <input type="text" class="form-control" name="arTitle" id="arTitle" value="<?= htmlspecialchars($article["article_title"]) ?>">
+                    <div class="form-group">
+                        <label for="authDesc">Description</label>
+                        <input type="text" class="form-control" name="authDesc" id="authDesc" required maxlength="150">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authEmail">Email</label>
+                        <input type="email" class="form-control" name="authEmail" id="authEmail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authImage">Avatar</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" name="authImage" id="authImage" accept="image/jpeg, image/png">
+                            <label class="custom-file-label" for="authImage">Choose file</label>
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="arContent">Content</label>
-                            <!-- FIX 2: Escaping article content to prevent XSS -->
-                            <textarea class="form-control" name="arContent" id="arContent" rows="3"><?= htmlspecialchars($article["article_content"]) ?></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label for="authTwitter">Twitter Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authTwitter" id="authTwitter" placeholder="Ex: username" maxlength="15" pattern="^[A-Za-z0-9_]{1,15}$">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="UploadImage">Image</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" name="arImage" id="arImage">
-                                <!-- FIX 2: Escaping article image to prevent XSS -->
-                                <label class="custom-file-label" for="UploadImage"> <?= htmlspecialchars($article['article_image']) ?></label>
-                            </div>
+                    <div class="form-group">
+                        <label for="authGithub">Github Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authGithub" id="authGithub" placeholder="Ex: username" maxlength="39" pattern="^[A-Za-z0-9-]{1,39}$">
+                    </div>
 
-                        </div>
+                    <div class="form-group">
+                        <label for="authLinkedin">Linkedin Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authLinkedin" id="authLinkedin" placeholder="Ex: username" maxlength="30" pattern="^[A-Za-z0-9-]{1,30}$">
+                    </div>
 
-                        <div class="my-2" style="width: 200px;">
-                            <!-- FIX 2: Escaping article image to prevent XSS -->
-                            <img class="w-100 h-auto" src="img/article/<?= htmlspecialchars($article["article_image"]) ?>" alt="">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="arCategory">Category</label>
-                            <select class="custom-select" name="arCategory" id="arCategory">
-                                <option disabled>-- Select Category --</option>
-
-                                <?php foreach ($categories as $category) : ?>
-
-                                    <?php if ($article['id_categorie'] == $category['category_id']) : ?>
-
-                                        <option value="<?= $category['category_id'] ?>" selected><?= htmlspecialchars($category['category_name']) ?></option>
-
-                                    <?php else : ?>
-
-                                        <option value="<?= $category['category_id'] ?>"><?= htmlspecialchars($category['category_name']) ?></option>
-
-                                    <?php endif; ?>
-
-                                <?php endforeach; ?>
-
-                            </select>
-                        </div>
-
-
-                        <div class="form-group">
-                            <label for="arauthor">Author</label>
-                            <select class="custom-select" name="arAuthor" id="arAuthor">
-                                <option disabled>-- Select Author --</option>
-
-                                <?php foreach ($authors as $author) : ?>
-
-                                    <?php if ($article['id_author'] == $author['author_id']) : ?>
-
-                                        <option value="<?= $author['author_id'] ?>" selected><?= htmlspecialchars($author['author_fullname']) ?></option>
-
-                                    <?php else : ?>
-
-                                        <option value="<?= $author['author_id'] ?>"><?= htmlspecialchars($author['author_fullname']) ?></option>
-
-                                    <?php endif; ?>
-
-
-                                <?php endforeach; ?>
-
-
-                            </select>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" name="update" class="btn btn-success btn-lg w-25">Update</button>
-                        </div>
-
-
-                    </form>
-                </div>
-
-                <div class="col-lg-4 mb-4">
-                    <!-- <h1> Random Articles </h1>  -->
-                </div>
-
-
+                    <div class="text-center">
+                        <button type="submit" name="submit" class="btn btn-success btn-lg w-25">Submit</button>
+                    </div>
+                </form>
             </div>
+
         </div>
-
-
-    </main>
-
-    <!-- Footer -->
-    <!-- <?php include "assest/footer.php" ?> -->
-
-    <!-- Text Editor Script -->
-    <script>
-        CKEDITOR.replace('arContent');
-    </script>
+    </div>
+</main>
 
 </body>
-
 </html>

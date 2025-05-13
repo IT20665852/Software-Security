@@ -1,80 +1,81 @@
-<!-- Include Head -->
-<?php include "assest/head.php"; ?>
 <?php
+session_start();
 
-$category_id = $_GET["id"];
-
-// Get category Data to display
-$stmt = $conn->prepare("SELECT * FROM category WHERE category_id = ?");
-$stmt->execute([$category_id]);
-$category = $stmt->fetch();
-
+// CSRF token generation
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 ?>
 
-<title>Update Category</title>
+<?php include "assets/head.php"; ?>
+<title>Add Author</title>
 </head>
 
 <body>
 
-    <!-- Header -->
-    <?php include "assest/header.php" ?>
+<?php include "assets/header.php"; ?>
 
+<main role="main" class="main">
+    <div class="jumbotron text-center">
+        <h1 class="display-3 font-weight-normal text-muted">Add Author</h1>
+    </div>
 
-    <!-- Main -->
-    <main role="main" class="main">
+    <div class="container">
+        <div class="row">
 
-        <div class="jumbotron text-center ">
-            <h1 class="display-3 font-weight-normal text-muted">Update a Category</h1>
-        </div>
+            <div class="col-lg-12 mb-4">
+                <form action="assets/insert.php?type=author" method="POST" enctype="multipart/form-data">
 
-        <div class="container">
+                    <!-- CSRF token for protection -->
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-            <div class="row">
+                    <div class="form-group">
+                        <label for="authName">Full Name</label>
+                        <input type="text" class="form-control" name="authName" id="authName" required maxlength="50">
+                    </div>
 
-                <div class="col-lg-12 mb-4">
-                    <!-- Form -->
-                    <form action="assest/update.php?type=category&id=<?= $category_id ?>&img=<?= $category["category_image"] ?>" method="POST" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="catName">Category Name</label>
-                            <input type="text" class="form-control" name="catName" id="catName" value="<?= $category["category_name"] ?>">
+                    <div class="form-group">
+                        <label for="authDesc">Description</label>
+                        <input type="text" class="form-control" name="authDesc" id="authDesc" required maxlength="150">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authEmail">Email</label>
+                        <input type="email" class="form-control" name="authEmail" id="authEmail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authImage">Avatar</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" name="authImage" id="authImage" accept="image/jpeg, image/png">
+                            <label class="custom-file-label" for="authImage">Choose file</label>
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="catImage">Category Image</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" name="catImage" id="catImage">
-                                <label class="custom-file-label" for="catImage"><?= $category["category_image"] ?></label>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="authTwitter">Twitter Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authTwitter" id="authTwitter" placeholder="Ex: username" maxlength="15" pattern="^[A-Za-z0-9_]{1,15}$">
+                    </div>
 
-                        <div class="my-2" style="width: 200px;">
-                            <img class="w-100 h-auto" src="img/category/<?= $category["category_image"] ?>" alt="">
-                        </div>
+                    <div class="form-group">
+                        <label for="authGithub">Github Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authGithub" id="authGithub" placeholder="Ex: username" maxlength="39" pattern="^[A-Za-z0-9-]{1,39}$">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="catColor">Category Color</label>
-                            <input type="color" id="catColor" name="catColor" value="<?= $category["category_color"] ?>">
-                        </div>
+                    <div class="form-group">
+                        <label for="authLinkedin">Linkedin Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authLinkedin" id="authLinkedin" placeholder="Ex: username" maxlength="30" pattern="^[A-Za-z0-9-]{1,30}$">
+                    </div>
 
-
-                        <div class="text-center">
-                            <button type="submit" name="update" class="btn btn-success btn-lg w-25">Update</button>
-                        </div>
-                    </form>
-                </div>
-
-
-
+                    <div class="text-center">
+                        <button type="submit" name="submit" class="btn btn-success btn-lg w-25">Submit</button>
+                    </div>
+                </form>
             </div>
 
         </div>
-
-    </main>
-
-    <!-- Footer -->
-    <!-- <?php include "assest/footer.php" ?> -->
-
+    </div>
+</main>
 
 </body>
-
 </html>

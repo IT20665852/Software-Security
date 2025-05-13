@@ -1,69 +1,34 @@
-.content {
-    color: #505050;
-    margin-top: 5.2rem;
+<?php
+// Initialize the session
+session_start();
+
+// Flag to check login status
+$loggedin = false;
+
+// Check if the user is already logged in
+if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
+    $loggedin = true;
 }
+?>
 
-.post__img {
-    height: 25rem;
-    /* background-image: url('../img/article/post_img_1.jpg'); */
-    background-size: cover;
-    background-position: inherit;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="img/logo/flogo.png" sizes="32x32" type="image/png">
 
-.profile-thumbnail {
-    width: 150px;
-    height: 150px;
-}
+    <!-- Bootstrap, FontAwesome, Custom Styles -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.css">
 
-.bg-l {
-    background-color: #e9ecef;
-}
+    <!-- Optionally, you may link to your custom stylesheets (if any) -->
+    <!-- <link rel="stylesheet" href="css/footer.css"> -->
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
+</head>
+<body>
+    <!-- Your HTML content goes here -->
 
-.content img {
-    max-width: 95%;
-    height: auto;
-}
-
-.content table * {
-    border: 1px solid black;
-}
-
-/* Article  */
-
-.blog-header {
-    position: fixed;
-    right: 0;
-    left: 0;
-    z-index: 1;
-}
-
-.post__date {
-    display: block;
-    margin-top: -.5rem;
-    color: #767676;
-}
-
-/* Author */
-
-.author_desc {
-    margin: 10px 0;
-    font-size: 13px;
-    color: #565656;
-}
-
-.author_links {
-    text-align: center;
-}
-
-video {
-    width: 100%;
-}
-
-/* Aside */
-
-.aside {
-    margin-top: 5.2rem;
-    /* position: fixed;
-    right: 0;
-    top: 6.5rem; */
-}
+</body>
+</html>

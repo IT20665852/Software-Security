@@ -1,14 +1,21 @@
-<?php include "assest/head.php"; ?>
+<?php
+session_start();
 
+// CSRF token generation
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+?>
+
+<?php include "assets/head.php"; ?>
 <title>Add Author</title>
 </head>
 
 <body>
 
-<?php include "assest/header.php" ?>
+<?php include "assets/header.php"; ?>
 
 <main role="main" class="main">
-
     <div class="jumbotron text-center">
         <h1 class="display-3 font-weight-normal text-muted">Add Author</h1>
     </div>
@@ -17,7 +24,10 @@
         <div class="row">
 
             <div class="col-lg-12 mb-4">
-                <form action="assest/insert.php?type=author" method="POST" enctype="multipart/form-data">
+                <form action="assets/insert.php?type=author" method="POST" enctype="multipart/form-data">
+
+                    <!-- CSRF token for protection -->
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
                     <div class="form-group">
                         <label for="authName">Full Name</label>
@@ -44,17 +54,17 @@
 
                     <div class="form-group">
                         <label for="authTwitter">Twitter Username <span class="text-info">(optional)</span></label>
-                        <input type="text" class="form-control" name="authTwitter" id="authTwitter" placeholder="Ex: Moon96Schwarz" maxlength="15" pattern="^[A-Za-z0-9_]{1,15}$">
+                        <input type="text" class="form-control" name="authTwitter" id="authTwitter" placeholder="Ex: username" maxlength="15" pattern="^[A-Za-z0-9_]{1,15}$">
                     </div>
 
                     <div class="form-group">
                         <label for="authGithub">Github Username <span class="text-info">(optional)</span></label>
-                        <input type="text" class="form-control" name="authGithub" id="authGithub" placeholder="Ex: Moon96Schwarz" maxlength="39" pattern="^[A-Za-z0-9-]{1,39}$">
+                        <input type="text" class="form-control" name="authGithub" id="authGithub" placeholder="Ex: username" maxlength="39" pattern="^[A-Za-z0-9-]{1,39}$">
                     </div>
 
                     <div class="form-group">
                         <label for="authLinkedin">Linkedin Username <span class="text-info">(optional)</span></label>
-                        <input type="text" class="form-control" name="authLinkedin" id="authLinkedin" placeholder="Ex: Moon96Schwarz" maxlength="30" pattern="^[A-Za-z0-9-]{1,30}$">
+                        <input type="text" class="form-control" name="authLinkedin" id="authLinkedin" placeholder="Ex: username" maxlength="30" pattern="^[A-Za-z0-9-]{1,30}$">
                     </div>
 
                     <div class="text-center">
@@ -65,7 +75,6 @@
 
         </div>
     </div>
-
 </main>
 
 </body>

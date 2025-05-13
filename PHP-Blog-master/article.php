@@ -1,114 +1,81 @@
-<!-- Include Head -->
-<?php include "assest/head.php"; ?>
 <?php
+session_start();
 
-// Check if the admin is already logged in, if yes then redirect him to home page
-if (!$loggedin) {
-    header("location: index.php");
-    exit;
+// CSRF token generation
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-
-// Get all Articles Data
-$stmt = $conn->prepare("SELECT * FROM article, author, category WHERE id_categorie = category_id AND author_id = id_author ORDER BY article_id DESC");
-$stmt->execute();
-$data = $stmt->fetchAll();
-
 ?>
 
-<!-- Custom CSS -->
-<!-- <link href="css/home.css" rel="stylesheet"> -->
-<link type="text/css" rel="stylesheet" href="css/style.css" />
-
-<title>Add Article</title>
-
+<?php include "assets/head.php"; ?>
+<title>Add Author</title>
 </head>
 
 <body>
 
-    <!-- Header -->
-    <?php include "assest/header.php" ?>
-    <!-- </Header> -->
+<?php include "assets/header.php"; ?>
 
-    <!-- Main -->
-    <main class="main">
+<main role="main" class="main">
+    <div class="jumbotron text-center">
+        <h1 class="display-3 font-weight-normal text-muted">Add Author</h1>
+    </div>
 
-        <div class="jumbotron text-center mb-0">
-            <h1 class="display-3 font-weight-normal text-muted">All Articles</h1>
-        </div>
+    <div class="container">
+        <div class="row">
 
-        <div class="bg-white p-4">
+            <div class="col-lg-12 mb-4">
+                <form action="assets/insert.php?type=author" method="POST" enctype="multipart/form-data">
 
-            <div class="row ">
+                    <!-- CSRF token for protection -->
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-                <div class="col-lg-12 text-center mb-3">
-                    <a class="btn btn-info" href="add_article.php">Add Article</a>
-                </div>
+                    <div class="form-group">
+                        <label for="authName">Full Name</label>
+                        <input type="text" class="form-control" name="authName" id="authName" required maxlength="50">
+                    </div>
 
+                    <div class="form-group">
+                        <label for="authDesc">Description</label>
+                        <input type="text" class="form-control" name="authDesc" id="authDesc" required maxlength="150">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authEmail">Email</label>
+                        <input type="email" class="form-control" name="authEmail" id="authEmail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authImage">Avatar</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" name="authImage" id="authImage" accept="image/jpeg, image/png">
+                            <label class="custom-file-label" for="authImage">Choose file</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authTwitter">Twitter Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authTwitter" id="authTwitter" placeholder="Ex: username" maxlength="15" pattern="^[A-Za-z0-9_]{1,15}$">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authGithub">Github Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authGithub" id="authGithub" placeholder="Ex: username" maxlength="39" pattern="^[A-Za-z0-9-]{1,39}$">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authLinkedin">Linkedin Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authLinkedin" id="authLinkedin" placeholder="Ex: username" maxlength="30" pattern="^[A-Za-z0-9-]{1,30}$">
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" name="submit" class="btn btn-success btn-lg w-25">Submit</button>
+                    </div>
+                </form>
             </div>
 
-            <div class="row">
-                <table class='table table-striped table-bordered'>
-
-                    <thead class='thead-dark'>
-                        <tr>
-                            <th scope='col'>ID</th>
-                            <th scope='col'>Title</th>
-                            <th scope='col'>Content</th>
-                            <th scope='col'>Image</th>
-                            <th scope='col'>Created Time</th>
-                            <th scope='col'>Category</th>
-                            <th scope='col'>Author</th>
-                            <th scope='col' colspan="3">Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <?php
-                        foreach ($data as $row) :
-                            echo "<tr>";
-                            ?>
-
-                            <td><?= $row['article_id'] ?></td>
-                            <td><?= $row['article_title'] ?></td>
-                            <td class="text-break"><?= strip_tags(substr($row['article_content'], 0, 40)) . "..." ?></td>
-                            <td><img src="img/article/<?= $row['article_image'] ?>" style="width: 100px; height: auto;"></td>
-                            <td><?= $row['article_created_time'] ?></td>
-                            <td><?= $row['category_name'] ?></td>
-                            <td><?= $row['author_fullname'] ?></td>
-
-                            <td>
-                                <a class="btn btn-info" href="single_article.php?id=<?= $row['article_id'] ?> ">
-                                    <i class="fa fa-eye" aria-hidden="true"></i>
-                                </a>
-                            </td>
-                            <td>
-                                <a class="btn btn-success" href="update_article.php?id=<?= $row['article_id'] ?> ">
-                                    <i class="fa fa-pencil " aria-hidden="true"></i>
-                                </a>
-                            </td>
-                            <td>
-                                <a class="btn btn-danger" href="assest/delete.php?type=article&id=<?= $row['article_id'] ?> ">
-                                    <i class="fa fa-trash " aria-hidden="true"></i>
-                                </a>
-                            </td>
-
-                        <?php
-                            echo "</tr>";
-                        endforeach;
-                        ?>
-                    </tbody>
-
-                </table>
-            </div>
         </div>
-
-
-    </main>
-
-    <!-- Footer -->
-    <!-- <?php include "assest/footer.php" ?> -->
-
+    </div>
+</main>
 
 </body>
-
 </html>

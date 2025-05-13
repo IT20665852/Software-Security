@@ -1,106 +1,81 @@
-<!-- Include Head -->
-<?php 
-include "assest/head.php"; 
+<?php
+session_start();
 
 // CSRF token generation
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-
-$stmt = $conn->prepare("SELECT category_id, category_name FROM category");
-$stmt->execute();
-$categories = $stmt->fetchAll();
-
-$stmt = $conn->prepare("SELECT author_id, author_fullname FROM author");
-$stmt->execute();
-$authors = $stmt->fetchAll();
 ?>
 
-<!-- JS TextEditor -->
-<script src="//cdn.ckeditor.com/4.13.1/standard/ckeditor.js"></script>
-
-<title>Add Article</title>
+<?php include "assets/head.php"; ?>
+<title>Add Author</title>
 </head>
 
 <body>
 
-    <!-- Header -->
-    <?php include "assest/header.php" ?>
+<?php include "assets/header.php"; ?>
 
-    <!-- Main -->
-    <main role="main" class="main">
-        <div class="jumbotron text-center">
-            <h1 class="display-3 font-weight-normal text-muted">Submit an Article</h1>
-        </div>
+<main role="main" class="main">
+    <div class="jumbotron text-center">
+        <h1 class="display-3 font-weight-normal text-muted">Add Author</h1>
+    </div>
 
-        <div class="container">
-            <div class="row">
+    <div class="container">
+        <div class="row">
 
-                <div class="col-lg-12 mb-4">
-                    <!-- Form -->
-                    <form action="assest/insert.php?type=article" method="POST" enctype="multipart/form-data">
-                        <!-- CSRF Token -->
-                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+            <div class="col-lg-12 mb-4">
+                <form action="assets/insert.php?type=author" method="POST" enctype="multipart/form-data">
 
-                        <div class="form-group">
-                            <label for="arTitle">Title</label>
-                            <input type="text" class="form-control" name="arTitle" id="arTitle" maxlength="255" required>
+                    <!-- CSRF token for protection -->
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
+                    <div class="form-group">
+                        <label for="authName">Full Name</label>
+                        <input type="text" class="form-control" name="authName" id="authName" required maxlength="50">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authDesc">Description</label>
+                        <input type="text" class="form-control" name="authDesc" id="authDesc" required maxlength="150">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authEmail">Email</label>
+                        <input type="email" class="form-control" name="authEmail" id="authEmail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authImage">Avatar</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" name="authImage" id="authImage" accept="image/jpeg, image/png">
+                            <label class="custom-file-label" for="authImage">Choose file</label>
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="arContent">Content</label>
-                            <textarea class="form-control" name="arContent" id="arContent" rows="3" required></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label for="authTwitter">Twitter Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authTwitter" id="authTwitter" placeholder="Ex: username" maxlength="15" pattern="^[A-Za-z0-9_]{1,15}$">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="arImage">Image</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" name="arImage" id="arImage" accept=".jpg,.jpeg,.png">
-                                <label class="custom-file-label" for="arImage">Choose file</label>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="authGithub">Github Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authGithub" id="authGithub" placeholder="Ex: username" maxlength="39" pattern="^[A-Za-z0-9-]{1,39}$">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="arCategory">Category</label>
-                            <select class="custom-select" name="arCategory" id="arCategory" required>
-                                <option disabled selected>-- Select Category --</option>
-                                <?php foreach ($categories as $category) : ?>
-                                    <option value="<?= htmlspecialchars($category['category_id']) ?>">
-                                        <?= htmlspecialchars($category['category_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <label for="authLinkedin">Linkedin Username <span class="text-info">(optional)</span></label>
+                        <input type="text" class="form-control" name="authLinkedin" id="authLinkedin" placeholder="Ex: username" maxlength="30" pattern="^[A-Za-z0-9-]{1,30}$">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="arAuthor">Author</label>
-                            <select class="custom-select" name="arAuthor" id="arAuthor" required>
-                                <option disabled selected>-- Select Author --</option>
-                                <?php foreach ($authors as $author) : ?>
-                                    <option value="<?= htmlspecialchars($author['author_id']) ?>">
-                                        <?= htmlspecialchars($author['author_fullname']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="text-center">
-                            <button type="submit" name="submit" class="btn btn-success btn-lg w-25">Submit</button>
-                        </div>
-                    </form>
-                </div>
-
+                    <div class="text-center">
+                        <button type="submit" name="submit" class="btn btn-success btn-lg w-25">Submit</button>
+                    </div>
+                </form>
             </div>
+
         </div>
-    </main>
-
-    <!-- Footer -->
-    <!-- <?php include "assest/footer.php" ?> -->
-
-    <!-- Text Editor Script -->
-    <script>
-        CKEDITOR.replace('arContent');
-    </script>
+    </div>
+</main>
 
 </body>
 </html>
