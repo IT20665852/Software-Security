@@ -1,18 +1,20 @@
+<?php require "db.php"; ?>
+
 <?php
 // Initialize the session
 session_start();
-
-// Flag to check login status
 $loggedin = false;
 
-// Check if the user is already logged in
+// Check if the user is already logged in, if yes then redirect him to welcome page
 if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
-    $loggedin = true;
+   $loggedin = true;
+    
 }
-?>
 
+?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- Required meta tags -->
     <meta charset="UTF-8">
@@ -22,13 +24,5 @@ if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
     <!-- Bootstrap, FontAwesome, Custom Styles -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.css">
-
-    <!-- Optionally, you may link to your custom stylesheets (if any) -->
-    <!-- <link rel="stylesheet" href="css/footer.css"> -->
-    <!-- <link rel="stylesheet" href="css/style.css"> -->
-</head>
-<body>
-    <!-- Your HTML content goes here -->
-
-</body>
-</html>
+    <!-- <link rel="stylesheet" href="css/footer.css">    -->
+    <!-- <link type="text/css" rel="stylesheet" href="css/style.css" /> -->
